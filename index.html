@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Money Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-white min-h-screen p-4 font-sans">
+
+    <div class="max-w-xl mx-auto mt-10">
+        <div class="bg-slate-900 border-2 border-pink-500 rounded-3xl p-8 text-center shadow-[0_0_20px_rgba(236,72,153,0.3)]">
+            <h1 class="text-pink-500 font-black tracking-tighter text-2xl mb-2 italic">JACKPOT</h1>
+            <div class="text-7xl font-black mb-4" id="cagnotte-display">0.00€</div>
+            <p class="text-slate-400 text-sm mb-6">Basé sur <span id="total-vues" class="font-bold text-white">0</span> vues accumulées</p>
+            
+            <button onclick="viderCagnotte()" class="bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 px-8 rounded-full transition-all transform active:scale-95">
+                RÉCUPÉRER L'ARGENT
+            </button>
+        </div>
+
+        <div class="mt-8 bg-slate-900 p-6 rounded-2xl border border-slate-800">
+            <h3 class="font-bold mb-4">Ajouter un nouveau TikTok</h3>
+            <div class="flex gap-2">
+                <input type="text" id="tiktok-url" placeholder="Coller le lien TikTok ici..." 
+                    class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-pink-500">
+                <button onclick="ajouterVideo()" class="bg-cyan-600 hover:bg-cyan-500 px-6 py-2 rounded-lg font-bold">Ajouter</button>
+            </div>
+        </div>
+
+        <div class="mt-8">
+            <h3 class="font-bold mb-4 text-slate-400 uppercase text-xs tracking-widest">Vidéos sous surveillance</h3>
+            <div id="video-list" class="space-y-3">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulation de données (En vrai, cela viendrait d'une base de données)
+        let videos = [];
+        let ratioVues = 0.001; // 1000 vues = 1€
+
+        function ajouterVideo() {
+            const input = document.getElementById('tiktok-url');
+            const url = input.value;
+            
+            if (url.includes('tiktok.com')) {
+                // Simulation : On génère un nombre de vues aléatoire pour l'exemple
+                // Dans la réalité, le script Python remplirait ce chiffre
+                const vuesSimulees = Math.floor(Math.random() * 5000) + 100;
+                
+                const nouvelleVideo = {
+                    id: Date.now(),
+                    url: url,
+                    vues: vuesSimulees
+                };
+                
+                videos.push(nouvelleVideo);
+                input.value = '';
+                refreshUI();
+            } else {
+                alert("Lien TikTok invalide !");
+            }
+        }
+
+        function supprimerVideo(id) {
+            videos = videos.filter(v => v.id !== id);
+            refreshUI();
+        }
+
+        function viderCagnotte() {
+            if(confirm("Confirmer la récupération ? Le compteur repassera à zéro.")) {
+                videos.forEach(v => v.vues = 0);
+                refreshUI();
+            }
+        }
+
+        function refreshUI() {
+            const listElement = document.getElementById('video-list');
+            listElement.innerHTML = '';
+            
+            let totalVues = 0;
+
+            videos.forEach(v => {
+                totalVues += v.vues;
+                listElement.innerHTML += `
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex justify-between items-center group">
+                        <div class="truncate mr-4">
+                            <p class="text-xs text-slate-500 truncate">${v.url}</p>
+                            <p class="font-bold text-cyan-400">${v.vues.toLocaleString()} vues</p>
+                        </div>
+                        <button onclick="supprimerVideo(${v.id})" class="text-slate-600 hover:text-red-500">✕</button>
+                    </div>
+                `;
+            });
+
+            document.getElementById('total-vues').innerText = totalVues.toLocaleString();
+            document.getElementById('cagnotte-display').innerText = (totalVues * ratioVues).toFixed(2) + "€";
+        }
+    </script>
+</body>
+</html>
